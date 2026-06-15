@@ -22,16 +22,27 @@ class JsonlFileProcessor:
         return event_dict
 
 
+def add_schema_defaults(_: Any, __: str, event_dict: dict[str, Any]) -> dict[str, Any]:
+    event_dict.setdefault("service", os.getenv("APP_NAME", "day13-observability-lab"))
+    event_dict.setdefault("env", os.getenv("APP_ENV", "dev"))
+    event_dict.setdefault("correlation_id", "system")
+    return event_dict
+
+
+def _scrub_value(value: Any) -> Any:
+    if isinstance(value, str):
+        return scrub_text(value)
+    if isinstance(value, dict):
+        return {key: _scrub_value(child) for key, child in value.items()}
+    if isinstance(value, list):
+        return [_scrub_value(child) for child in value]
+    if isinstance(value, tuple):
+        return tuple(_scrub_value(child) for child in value)
+    return value
+
 
 def scrub_event(_: Any, __: str, event_dict: dict[str, Any]) -> dict[str, Any]:
-    payload = event_dict.get("payload")
-    if isinstance(payload, dict):
-        event_dict["payload"] = {
-            k: scrub_text(v) if isinstance(v, str) else v for k, v in payload.items()
-        }
-    if "event" in event_dict and isinstance(event_dict["event"], str):
-        event_dict["event"] = scrub_text(event_dict["event"])
-    return event_dict
+    return _scrub_value(event_dict)
 
 
 
@@ -42,10 +53,10 @@ def configure_logging() -> None:
             merge_contextvars,
             structlog.processors.add_log_level,
             structlog.processors.TimeStamper(fmt="iso", utc=True, key="ts"),
-            # TODO: Register your PII scrubbing processor here
-            # scrub_event,
+            add_schema_defaults,
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
+            scrub_event,
             JsonlFileProcessor(),
             structlog.processors.JSONRenderer(),
         ],

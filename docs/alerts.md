@@ -38,3 +38,16 @@
   - shorten prompts
   - route easy requests to cheaper model
   - apply prompt cache
+
+## 4. PII leak detected
+- Severity: P1
+- Trigger: `pii_leak_count > 0 for 1m`
+- Impact: sensitive user data may be exposed in logs or screenshots
+- First checks:
+  1. Run `python scripts/validate_logs.py`
+  2. Search recent logs for `@`, `4111`, phone-like numbers, CCCD, passport, or address markers
+  3. Verify whether the leak came from payload preview, error detail, or exception text
+- Mitigation:
+  - stop demo traffic until the leak is understood
+  - extend `app/pii.py` pattern coverage
+  - keep only hashed user IDs and redacted message previews in logs

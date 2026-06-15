@@ -17,3 +17,9 @@ alerts:
     type: symptom-based
     owner: finops-owner
     runbook: docs/alerts.md#3-cost-budget-spike
+  - name: pii_leak_detected
+    severity: P1
+    condition: pii_leak_count > 0 for 1m
+    type: cause-based
+    owner: privacy-owner
+    runbook: docs/alerts.md#4-pii-leak-detected

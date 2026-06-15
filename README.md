@@ -12,7 +12,7 @@ A small FastAPI "agent" instrumented with:
 - minimal metrics aggregation
 - SLOs, alerts, and a blueprint report
 
-This template is intentionally incomplete. Teams are expected to finish TODOs during the lab.
+This repo started as a gapped lab template and now contains a completed local implementation for the Day 13 observability requirements.
 
 ## Suggested lab flow (Gapped Template)
 
@@ -35,6 +35,12 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
+Open the dashboard at:
+
+```text
+http://127.0.0.1:8000/dashboard
+```
+
 ## Tooling
 
 ```bash
@@ -46,6 +52,9 @@ python scripts/inject_incident.py --scenario rag_slow
 
 # Check your implementation progress
 python scripts/validate_logs.py
+
+# Generate local demo logs without opening a network socket
+python scripts/generate_demo_logs.py
 ```
 
 ## Repo map
@@ -55,6 +64,7 @@ app/
   main.py                FastAPI app
   agent.py               core agent pipeline
   logging_config.py      structlog config
+  dashboard.py           6-panel HTML dashboard
   middleware.py          correlation ID middleware
   pii.py                 scrubbing helpers
   tracing.py             Langfuse helpers
@@ -69,6 +79,7 @@ config/
   logging_schema.json    expected log schema
 scripts/
   load_test.py           generate requests
+  generate_demo_logs.py  generate ASGI demo traffic without localhost sockets
   inject_incident.py     flip incident toggles
   validate_logs.py       schema checks for logs
 data/
@@ -108,6 +119,6 @@ Your final grade is calculated as follows:
    - **Git Evidence (20 pts)**: Traceable work via commits and code ownership.
 
 **Passing Criteria**: 
-- All `TODO` blocks must be completed.
+- All implementation gaps must be completed.
 - Minimum of 10 traces must be visible in Langfuse.
 - Dashboard must show all 6 required panels.
